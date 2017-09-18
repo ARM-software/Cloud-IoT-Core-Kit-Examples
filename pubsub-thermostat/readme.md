@@ -6,12 +6,17 @@ Go to Interface Options->I2C and enable. Exit out of raspi-config and run:
 
     sudo i2cdetect -F 1
 
-To verify i2c is enabled. 
+Connect the RasPi Cobbler board to your breadboard and the 40 pin cable to your Pi 3 [as pictured here](https://cdn-shop.adafruit.com/970x728/2029-01.jpg). The keyed end in the cobbler is obvious, the white striped end of the cable and 90° angle of the cable coming off the RasPi (which is not keyed) are useful visual queues. Connect the Temp/Pressure/Humidity Sensor to the breadboard and connect the 3.3v and ground pins to the cobbler. Then connnect the i2c clock and data pins. On the Pi Cobbler SDA is data and SCL is clock. On the BME280 sensor SDI is data and SCK is the clock.
+
+Verify i2c is enabled. 
 
     sudo i2cdetect -y 1
-    sudo i2cdump -y 1 0x77
-
-Will display a grid showing what address any devices are using on the i2C bus. Connect the RasPi Cobbler board to your breadboard and the 40pin cable to your Pi 3. Connect the Temp/Pressure/Humidity Sensor to the breadboard and connect the 3.3v and ground pins to the cobbler. Then connnect the i2c clock and data pins. On the Pi Cobbler SDA is data and SCL is clock. On the BME280 sensor SDI is data and SCK is the clock
+    
+Will display a grid showing what address any devices are using on the i2C bus. You can dump more information about any of the addresses shown with:
+    
+    sudo i2cdump -y 1 0x77    <--- hex number shown from previous command
+    
+We can verify the sensor is working with the Adafruit GPIO and BME280 python scripts. 
 
     sudo apt-get install build-essential python-pip python-dev python-smbus git
     git clone https://github.com/adafruit/Adafruit_Python_GPIO.git
