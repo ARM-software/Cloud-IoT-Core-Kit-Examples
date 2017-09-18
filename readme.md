@@ -23,35 +23,32 @@ If you purchased the kit that includes the Raspberry Pi 3 Model B, this comes wi
 
     rpi-update && reboot
 
-< *note: you can change most boot bus and interface options with **sudo raspi-config*** 
+ *note: you can change most boot, bus and, interface options with a curses interface as well using **sudo raspi-config** i.e. enabling the i2c interface* 
 
 ---
 !! MAY NEED TO SAY SOMETHING ABOUT REGISTERING WITH GOOGLE FOR THE BETA. IF YOU ARE NOT REGISTERED THE LINKS BELOW WILL 404
-!! Matt: maybe. I'm expecting all of this content to be made open when the beta goes public
+!! M: Expecting all of this content to be made open when the beta goes public
 
 ## Enabling Cloud IoT Core AP, installing the Google Cloud SDK and registering your first device
 The Google Cloud SDK can be installed on another host machine or the Pi itself. These steps will get the gcloud command installed on the Pi but it can just as easily be done on any machine that you do your development on.
 
 1. Create a Cloud Platform project and enable the Cloud IoT Core API using these **"[Before you begin](https://cloud.google.com/iot/docs/device_manager_guide#before-you-begin)"** directions.
 
-2. Install **[the latest Google Cloud Tools](https://cloud.google.com/sdk/docs/#deb)** with the included directions, please be careful to use us-central1-a during the beta when running gcloud-init. Also, in Linux some of the beta additions require "sudo gcloud" to be used so you'll need to authorize your root account with sudo in addition to your 'pi' account so instructions from here will diverge from those included [here](https://cloud.google.com/iot/docs/device_manager_guide#install_the_gcloud_cli). Simply follow the directions below instead if you are installing gcloud on the Pi rather than another host machine.
+2. Install **[the latest Google Cloud Tools](https://cloud.google.com/sdk/docs/#deb)** with the included directions, please be careful to use us-central1-a during the beta when running gcloud-init. Also, in Linux some of the beta additions require "sudo gcloud" to be used so you'll need to authorize your root account with sudo in addition to your 'pi' account so instructions from here will diverge from those included [here](https://cloud.google.com/iot/docs/device_manager_guide#install_the_gcloud_cli). Simply follow the directions below instead if you are installing gcloud on the Pi rather than another host machine. SSHing in to your Pi (headless) is **strongly** advised in order facilitate authentication of your accounts with your normal desktop browser using copy/paste.
 
 
 
     sudo gcloud components repositories add https://storage.googleapis.com/cloud-iot-gcloud/components-2.json
-!! I had to run this command as a sudo which meant I also had to log in to cloud again before could run it- not easy
 
 3. create shell variables with your specific project name from step 1 as well as region, registry, device, subscription and event names, i.e.:
 
 
-    project=my-project-name-1234
+    project=my-project-name-1234  <-- Fill this in from step 1, the rest can remain as is and used in your .profile or .bashrc
     region=us-central1
     registry=example-registry
     device=my-rs256-device
     mysub=my-sub
     events=events
-!! You have to create a project on GCP first, enable the IoT API and create a pub/sub topic [and potentially add pub/sub email]  
-!! I stated "Create a Cloud Platform project" in step one
 
 4. Create a new registry using the gcloud command. 
 
@@ -59,7 +56,7 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
     gcloud beta iot registries create $registry \
 	  --project=$project \
 	  --region=$region \
-	  --pubsub-topic=projects/$project/topics/events
+	  --pubsub-topic=projects/$project/topics/$events
 
 5. Create a public/private key pair for your device and create a new device in your project and registry. Or, stretch goal, register one programmatically with [these code samples](https://cloud.google.com/iot/docs/device_manager_samples).
 
@@ -100,3 +97,4 @@ Our initial examples for this kit will focus on Python but it is entirely possib
 
 ## Hello World - Temperature example
 
+See CPUTemp example's readme.md
