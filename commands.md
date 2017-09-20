@@ -36,23 +36,6 @@ Create a new pubsub subscription to an event
 
  Find more at:[ https://cloud.google.com/iot/docs/gcloud_examples](https://cloud.google.com/iot/docs/gcloud_examples)
 
-
----
-
-python cloudiot_pubsub_example_server.py \
-    --project_id=$project \
-    --pubsub_topic=$events \
-    --pubsub_subscription=$mysub \
-    --api_key=$apiKey
-
-python cloudiot_pubsub_example_mqtt_device.py \
-      --project_id=$project \
-      --registry_id=$registry \
-      --device_id=$device \
-      --private_key_file=rsa_private.pem \
-      --algorithm=RS256
-
-
 ---
 ## Sync files on host machine with RasPi as they are changed
 

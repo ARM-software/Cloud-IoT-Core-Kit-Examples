@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -48,14 +50,14 @@ class Server(object):
         credentials=credentials)
 
   def _update_device_config(self, project_id, region, registry_id, device_id,
-                            data):
+                            data, fan_on_thresh,  fan_off_thresh):
     """Push the data to the given device as configuration."""
     config_data = None
-    if data['temperature'] < 0:
+    if data['temperature'] < fan_off_thresh:
       # Turn off the fan.
       config_data = {'fan_on': False}
-      print 'Setting fan state for device', device_id, 'to off.'
-    elif data['temperature'] > 10:
+      print 'Temp:', data['temperature'],'C. Setting fan state for device', device_id, 'to off.'
+    elif data['temperature'] > fan_on_thresh:
       # Turn on the fan
       config_data = {'fan_on': True}
       print 'Setting fan state for device', device_id, 'to on.'
@@ -86,7 +88,7 @@ class Server(object):
         name=device_name, body=body)
     return request.execute()
 
-  def run(self, project_id, pubsub_topic, pubsub_subscription):
+  def run(self, project_id, pubsub_topic, pubsub_subscription, fan_on_thresh, fan_off_thresh):
     """The main loop for the device. Consume messages from the Pub/Sub topic."""
     pubsub_client = pubsub.Client()
     topic_name = 'projects/{}/topics/{}'.format(project_id, pubsub_topic)
@@ -98,6 +100,7 @@ class Server(object):
       # Pull from the subscription, waiting until there are messages.
       results = subscription.pull(return_immediately=False)
       for ack_id, message in results:
+        # print '.'
         data = json.loads(message.data)
         # Get the registry id and device id from the attributes. These are
         # automatically supplied by IoT, and allow the server to determine which
@@ -109,7 +112,7 @@ class Server(object):
 
         # Send the config to the device.
         self._update_device_config(device_project_id, device_region,
-                                   device_registry_id, device_id, data)
+                                   device_registry_id, device_id, data, fan_on_thresh, fan_off_thresh)
 
       if results:
         # Acknowledge the consumed messages. This will ensure that they are not
@@ -140,6 +143,18 @@ def parse_command_line_args():
       default='service_account.json',
       help='Path to service account json file.')
 
+  parser.add_argument(
+      '--fan_on',
+      type=int,
+      default='23',
+      help='Turn the fan on at or above this temperature, default 23C')
+
+  parser.add_argument(
+      '--fan_off',
+      type=int,
+      default='22',
+      help='Turn the fan off at or below this temperature, default 22C')
+
   return parser.parse_args()
 
 
@@ -147,7 +162,7 @@ def main():
   args = parse_command_line_args()
 
   server = Server(args.service_account_json, args.api_key)
-  server.run(args.project_id, args.pubsub_topic, args.pubsub_subscription)
+  server.run(args.project_id, args.pubsub_topic, args.pubsub_subscription, args.fan_on, args.fan_off)
 
 
 if __name__ == '__main__':

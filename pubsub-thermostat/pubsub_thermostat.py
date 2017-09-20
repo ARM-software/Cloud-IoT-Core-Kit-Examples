@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -18,6 +20,14 @@ import time
 import jwt
 import paho.mqtt.client as mqtt
 
+from Adafruit_BME280 import *
+import RPi.GPIO as GPIO
+
+FAN_GPIO = 21
+sensor = BME280(t_mode=BME280_OSAMPLE_8, p_mode=BME280_OSAMPLE_8, h_mode=BME280_OSAMPLE_8)
+
+# Update and publish temperature readings at a rate of SENSOR_POLL per second.
+SENSOR_POLL=5
 
 def create_jwt(project_id, private_key_file, algorithm):
   """Create a JWT (https://jwt.io) to establish an MQTT connection."""
@@ -47,15 +57,7 @@ class Device(object):
     self.connected = False
 
   def update_sensor_data(self):
-    """Pretend to read the device's sensor data.
-
-    If the fan is on, assume the temperature decreased one degree,
-    otherwise assume that it increased one degree.
-    """
-    if self.fan_on:
-      self.temperature -= 1
-    else:
-      self.temperature += 1
+    self.temperature = int(sensor.read_temperature())
 
   def wait_for_connection(self, timeout):
     """Wait for the device to become connected."""
@@ -108,8 +110,10 @@ class Device(object):
       # internal state.
       self.fan_on = data['fan_on']
       if self.fan_on:
+        GPIO.output(FAN_GPIO, GPIO.HIGH)
         print 'Fan turned on.'
       else:
+        GPIO.output(FAN_GPIO, GPIO.LOW)
         print 'Fan turned off.'
 
 
@@ -152,6 +156,10 @@ def parse_command_line_args():
 
 def main():
   args = parse_command_line_args()
+
+  # Setup GPIOs for the RasPi3 and cobbler
+  GPIO.setmode(GPIO.BCM) 
+  GPIO.setup(FAN_GPIO, GPIO.OUT)
 
   # Create our MQTT client and connect to Cloud IoT.
   client = mqtt.Client(
@@ -199,10 +207,11 @@ def main():
     payload = json.dumps({'temperature': device.temperature})
     print 'Publishing payload', payload
     client.publish(mqtt_telemetry_topic, payload, qos=1)
-    time.sleep(1)
+    time.sleep(SENSOR_POLL)
 
   client.disconnect()
   client.loop_stop()
+  GPIO.cleanup()
   print 'Finished loop successfully. Goodbye!'
 
 
