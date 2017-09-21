@@ -52,16 +52,12 @@ You'll also need the Python pub/sub library and APIs
 
 [Create an API key and service account named api-tester](https://cloud.google.com/iot/docs/device_manager_samples) and make a service_account.json file (steps 1 and 2 in the link) and put it in this example's directory (scp or rsync over ssh are easy ways to move files to your ssh connected Pi if you've downloaded the json file on a host machine).
 
-<-- Set a GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your json file
-
-    export GOOGLE_APPLICATION_CREDENTIALS=service_account.json
--->
 Make sure you're authenticated
 
     gcloud auth application-default login
 
 Change to the directory you've cloned this example to. i.e. "cd ~/Cloud-IoT-Core-Kit-Examples/pubsub-thermostat"
-Our control server can run on any host machine, including the RasPi. The "--fan_off" and "--fan_on" arguments are the integer temperatures in °C that will turn on the "fan" LED i.e. when a devices is over 23°C and when it will turn the fan back off i.e. when a device is under 22°C
+Our control server can run on any host machine, including the RasPi. The "--fan_off" and "--fan_on" arguments are the integer temperatures in °C that will turn on the "fan" LED i.e. when a devices is over 23°C and when it will turn the fan back off i.e. when a device is under 22°C. See optional argument options like "--service_account_json=directory/location" in the code.
 
     python control_server.py \
      --project_id=$project \
