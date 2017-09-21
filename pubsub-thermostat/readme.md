@@ -1,6 +1,6 @@
-This example will use the kit's temperature/pressure/humidity sensor to monitor temperature and control a fan in a complete IoT system. The devices in this system publish temperature data on their pubsub feeds. A server consumes the telemetry data from a Cloud Pub/Sub topic. The server then decides whether to turn on or off the individual devices' fans via a Cloud IoT Core configuration update.
+This example will use the kit's temperature/pressure/humidity sensor to monitor temperature and control a fan in a complete IoT system with both a server and device component. The devices in this system (your Cloud IoT Core kit(s) in this case) publish temperature data on their pubsub registry feeds and individual device IDs. A server python application, which you can run from any machine you like, consumes the telemetry data from your Cloud Pub/Sub topic and events. The server then decides whether to turn on or off the individual devices' fans via a Cloud IoT Core configuration update. 
 
-This example requires i2c to be enabled in order to read the temperature sensor. Please run 
+This example requires i2c to be enabled in order to read the [temperature sensor included with this kit](https://www.adafruit.com/product/2652). Please run 
 
     sudo raspi-config
 
@@ -43,25 +43,25 @@ Now connect an LED to GIPO 21 and one of the GND pins with a resistor in series 
     GPIO.output(21, GPIO.HIGH)
     GPIO.output(21, GPIO.LOW)
 
-Using GPIO.output(21, GPIO.HIGH) and GPIO.output(21, GPIO.LOW) should toggle your LED on an off.
+Using "GPIO.output(21, GPIO.HIGH)" and "GPIO.output(21, GPIO.LOW)" should toggle your LED on an off.
 
 You'll also need the Python pub/sub library and APIs
 
     sudo pip install --upgrade google-cloud-pubsub
     sudo pip install google-api-python-client google-auth-httplib2 google-auth google-cloud
 
-[Create an API key and service account named api-tester](https://cloud.google.com/iot/docs/device_manager_samples)and make a service_account.json file (steps 1 and 2 in the link) and put it in this example's directory (scp or rsync over ssh are easy ways to move files to your ssh connected Pi if you've downloaded the json file on a host machine).
+[Create an API key and service account named api-tester](https://cloud.google.com/iot/docs/device_manager_samples) and make a service_account.json file (steps 1 and 2 in the link) and put it in this example's directory (scp or rsync over ssh are easy ways to move files to your ssh connected Pi if you've downloaded the json file on a host machine).
 
-Set a GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your json file
+<-- Set a GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your json file
 
     export GOOGLE_APPLICATION_CREDENTIALS=service_account.json
-
+-->
 Make sure you're authenticated
 
     gcloud auth application-default login
 
 Change to the directory you've cloned this example to. i.e. "cd ~/Cloud-IoT-Core-Kit-Examples/pubsub-thermostat"
-Our control server can run on any host machine, including the RasPi. The --fan_off and --fan_on arguments are the temperatures in °C that will turn on the "fan" LED i.e. when a devices is over 23°C and when it will turn the fan back off i.e. when a device is under 22°C
+Our control server can run on any host machine, including the RasPi. The "--fan_off" and "--fan_on" arguments are the integer temperatures in °C that will turn on the "fan" LED i.e. when a devices is over 23°C and when it will turn the fan back off i.e. when a device is under 22°C
 
     python control_server.py \
      --project_id=$project \
@@ -71,7 +71,7 @@ Our control server can run on any host machine, including the RasPi. The --fan_o
      --fan_off=22 \
      --fan_on=23
 
-The client will run on one or many RasPi kits with unique device ids:
+The client will run on one or many RasPi Clout IoT kits with unique device ids:
 
     python pubsub_thermostat.py \
       --project_id=$project \
