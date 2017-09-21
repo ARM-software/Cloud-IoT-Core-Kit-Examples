@@ -4,7 +4,7 @@ This example requires i2c to be enabled in order to read the temperature sensor.
 
     sudo raspi-config
 
-Go to Interface Options->I2C and enable. Exit out of raspi-config and run:
+Go to Interfacing Options->I2C and enable. Exit out of raspi-config and run:
 
     sudo i2cdetect -F 1
 
