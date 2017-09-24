@@ -8,7 +8,7 @@ Go to Interfacing Options->I2C and enable. Exit out of raspi-config and run:
 
     sudo i2cdetect -F 1
 
-Connect the RasPi Cobbler board to your breadboard and the 40 pin cable to your Pi 3 [as pictured here](https://cdn-shop.adafruit.com/970x728/2029-01.jpg). The keyed end in the cobbler is obvious, the white striped end of the cable and 90° angle of the cable coming off the RasPi (which is not keyed) are useful visual queues. Connect the Temp/Pressure/Humidity Sensor to the breadboard and connect the 3.3v and ground pins to the cobbler. Then connnect the i2c clock and data pins. On the Pi Cobbler SDA is data pin and SCL is clock pin. On the BME280 sensor SDI is the data pin and SCK is the clock pin.
+Connect the RasPi Cobbler board to your breadboard and the 40 pin cable to your Pi 3 [as pictured here](https://cdn-shop.adafruit.com/970x728/2029-01.jpg). The keyed end in the cobbler is obvious, the white striped end of the cable and 90° angle of the cable coming off the RasPi (which is not keyed) are useful visual queues. Connect the Temp/Pressure/Humidity Sensor to the breadboard and connect the 3.3v and ground pins to the cobbler. Then connnect the i2c clock and data pins: On the Pi Cobbler SDA is data pin and SCL is clock pin. On the BME280 sensor SDI is the data pin and SCK is the clock pin.
 
 Verify i2c is enabled. 
 
