@@ -42,6 +42,7 @@ Now connect an LED to GIPO 21 and one of the GND pins with a resistor in series 
     GPIO.setup(21, GPIO.OUT)
     GPIO.output(21, GPIO.HIGH)
     GPIO.output(21, GPIO.LOW)
+    quit()
 
 Using "GPIO.output(21, GPIO.HIGH)" and "GPIO.output(21, GPIO.LOW)" should toggle your LED on an off.
 
@@ -67,7 +68,7 @@ Our control server can run on any host machine, including the RasPi. The "--fan_
      --fan_off=22 \
      --fan_on=23
 
-The client will run on one or many RasPi Clout IoT kits with unique device ids:
+The client will run on one or many RasPi Cloud IoT kits with unique device ids:
 
     python pubsub_thermostat.py \
       --project_id=$project \
