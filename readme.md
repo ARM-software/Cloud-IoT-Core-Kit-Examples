@@ -1,4 +1,4 @@
-## [Example projects and code](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples) are supplied to support the [Arm IoT Kit for Cloud IoT Core](https://www.adafruit.com/product/3609) from [Adafruit](https://www.adafruit.com).
+## [Example projects and code](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples) are supplied to support the [Arm IoT Kit for Cloud IoT Core](https://www.adafruit.com/product/3609) [(kit including RasPi3)](https://www.adafruit.com/product/3594) from [Adafruit](https://www.adafruit.com)
 ---
 # Getting Started
 
