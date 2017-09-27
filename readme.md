@@ -103,3 +103,8 @@ See [CPUTemp example's readme.md](https://github.com/ARM-software/Cloud-IoT-Core
 ## PubSub End-to-end - Thermostat example
 
 Wire up the thermostat and led sensors and create an [end to end server and device thermostat system](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples/tree/master/pubsub-thermostat).
+
+
+---
+
+Find more [samples](https://cloud.google.com/iot/docs/samples/) and [documentation](https://cloud.google.com/iot/docs/) at the Google Cloud Platform IoT site.
