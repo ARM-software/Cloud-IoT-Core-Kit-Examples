@@ -1,4 +1,4 @@
-## [Example projects and code](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples) are supplied to support the [Arm IoT Kit for Cloud IoT Core](https://www.adafruit.com/product/3609) from [Adafruit](https://www.adafruit.com).
+## [Example projects and code](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples) are supplied to support the [Arm-based IoT Kit for Cloud IoT Core](https://www.adafruit.com/product/3609) [(kit including RasPi3)](https://www.adafruit.com/product/3594) from [Adafruit](https://www.adafruit.com)
 ---
 # Getting Started
 
@@ -31,7 +31,7 @@ Before you proceed please ensure you have registered with the Google IoT Core Be
 
 The Google Cloud SDK can be installed on another host machine or the Pi itself. These steps will get the gcloud command installed on the Pi but it can just as easily be done on any machine that you do your development on.
 
-1. Create a Cloud Platform project and enable the Cloud IoT Core API using these **"[Before you begin](https://cloud.google.com/iot/docs/device_manager_guide#before-you-begin)"** directions.
+1. Create a Cloud Platform project and enable the Cloud IoT Core API using these **"[Before you begin](https://cloud.google.com/iot/docs/how-tos/getting-started)"** directions.
 
 2. Install **[the latest Google Cloud Tools](https://cloud.google.com/sdk/docs/#deb)** with the included directions, please be careful to use us-central1-a during the beta when running gcloud-init. Also, in Linux some of the beta additions require "sudo gcloud" to be used so you'll need to authorize your root account with sudo in addition to your 'pi' account so instructions from here will diverge from those included [here](https://cloud.google.com/iot/docs/device_manager_guide#install_the_gcloud_cli). Simply follow the directions below instead if you are installing gcloud on the Pi rather than another host machine. SSHing into your Pi (headless) is **strongly** advised in order facilitate authentication of your accounts with your normal desktop browser using copy/paste.
 
@@ -103,3 +103,8 @@ See [CPUTemp example's readme.md](https://github.com/ARM-software/Cloud-IoT-Core
 ## PubSub End-to-end - Thermostat example
 
 Wire up the thermostat and led sensors and create an [end to end server and device thermostat system](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples/tree/master/pubsub-thermostat).
+
+
+---
+
+Find more [samples](https://cloud.google.com/iot/docs/samples/) and [documentation](https://cloud.google.com/iot/docs/) at the Google Cloud Platform IoT site.
