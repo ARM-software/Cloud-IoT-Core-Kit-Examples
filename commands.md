@@ -40,3 +40,18 @@ Create a new pubsub subscription to an event
 ## Sync files on host machine with RasPi as they are changed
 
     find $IDEdir -type f|entr rsync -aiv --no-o --size-only --progress $IDEdir -e ssh $destPi
+
+---
+## Useful RasPi commands for checking your wiring
+
+Blink GPIO 21 (i.e. and LED)
+
+    gpio -g blink 21
+
+Read all of the GPIOs
+
+    gpio readall
+
+See everything on the i2c bus
+
+    i2cdetect -y 1
