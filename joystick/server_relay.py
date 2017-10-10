@@ -21,6 +21,7 @@ from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
 
 from google.cloud import pubsub
+from google.oauth2 import service_account
 
 API_SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
 API_VERSION = 'v1beta1'
@@ -31,6 +32,36 @@ def discovery_url(api_key):
   """Construct the discovery url for the given api key."""
   return '{}?version={}&key={}'.format(DISCOVERY_API, API_VERSION, api_key)
 
+def get_client(service_account_json):
+    """Returns an authorized API client by discovering the IoT API and creating
+    a service object using the service account credentials JSON."""
+    api_scopes = ['https://www.googleapis.com/auth/cloud-platform']
+    api_version = 'v1'
+    discovery_api = 'https://cloudiot.googleapis.com/$discovery/rest'
+    service_name = 'cloudiotcore'
+
+    credentials = service_account.Credentials.from_service_account_file(
+            service_account_json)
+    scoped_credentials = credentials.with_scopes(api_scopes)
+
+    discovery_url = '{}?version={}'.format(
+            discovery_api, api_version)
+
+    return discovery.build(
+            service_name,
+            api_version,
+            discoveryServiceUrl=discovery_url,
+            credentials=scoped_credentials)
+
+def list_devices(
+  service_account_json, project_id, cloud_region, registry_id):
+  registry_path = 'projects/{}/locations/{}/registries/{}'.format(
+    project_id, cloud_region, registry_id)
+  client = get_client(service_account_json)
+  devices = client.projects().locations().registries().devices(
+    ).list(parent=registry_path).execute().get('devices', [])
+
+  return devices
 
 class Server(object):
   """Represents the state of the server."""
@@ -82,7 +113,7 @@ class Server(object):
         name=device_name, body=body)
     return request.execute()
 
-  def run(self, project_id, pubsub_topic, pubsub_subscription):
+  def run(self, project_id, pubsub_topic, pubsub_subscription, service_account_json):
     """The main loop for the device. Consume messages from the Pub/Sub topic."""
     pubsub_client = pubsub.Client()
     topic_name = 'projects/{}/topics/{}'.format(project_id, pubsub_topic)
@@ -104,12 +135,15 @@ class Server(object):
         device_project_id = message.attributes['projectId']
         device_registry_id = message.attributes['deviceRegistryId']
         # device_id = message.attributes['deviceId']
-        device_id = "my-ec256-device"
         device_region = message.attributes['deviceRegistryLocation']
 
-        # Send the config to the device.
-        self._update_device_config(device_project_id, device_region,
-                                   device_registry_id, device_id, data)
+        devices = list_devices(service_account_json, device_project_id, device_region, device_registry_id)
+        for device in devices:
+          device_id = device.get('id')
+
+          # Send the config to the device.
+          self._update_device_config(device_project_id, device_region,
+                                     device_registry_id, device_id, data)
 
       if results:
         # Acknowledge the consumed messages. This will ensure that they are not
@@ -142,12 +176,11 @@ def parse_command_line_args():
 
   return parser.parse_args()
 
-
 def main():
   args = parse_command_line_args()
 
   server = Server(args.service_account_json, args.api_key)
-  server.run(args.project_id, args.pubsub_topic, args.pubsub_subscription)
+  server.run(args.project_id, args.pubsub_topic, args.pubsub_subscription, args.service_account_json)
 
 
 if __name__ == '__main__':
