@@ -104,6 +104,11 @@ See [CPUTemp example's readme.md](https://github.com/ARM-software/Cloud-IoT-Core
 
 Wire up the thermostat and led sensors and create an [end to end server and device thermostat system](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples/tree/master/pubsub-thermostat).
 
+---
+
+## Joystick End-to-end - analog to digital input/servo control example
+
+Connect a [joystick](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples/tree/master/joystick) via 10-bit ADC and use the input to control a PWM servo, e.g. the way a rheostat or app might control multiple lights or a an HVAC controls multiple vents and fans.
 
 ---
 
