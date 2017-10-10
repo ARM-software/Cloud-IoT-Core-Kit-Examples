@@ -20,14 +20,32 @@ import time
 import jwt
 import paho.mqtt.client as mqtt
 
-from Adafruit_BME280 import *
-import RPi.GPIO as GPIO
+# Import SPI library (for hardware SPI) and MCP3008 library.
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
 
-FAN_GPIO = 21
-sensor = BME280(t_mode=BME280_OSAMPLE_8, p_mode=BME280_OSAMPLE_8, h_mode=BME280_OSAMPLE_8)
+from subprocess import call
 
-# Update and publish temperature readings at a rate of SENSOR_POLL per second.
-SENSOR_POLL=5
+# Software SPI configuration:
+CLK  = 12
+MISO = 23
+MOSI = 24
+CS   = 25
+mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
+
+servoMin = 50
+servoMax = 250
+servoSteps = servoMax - servoMin
+stickSensitivity = 5   # the lower the number the more sensitive we are to stick changes that transmit a message
+stickToServoPositionRatio = 1024/servoSteps # assume 10bit ADC
+
+#Servo settings
+pwmGPIO = "18"
+pwmClock = "192"
+pwmRange = "2000"
+
+# Update and publish readings at a rate of SENSOR_POLL per second.
+SENSOR_POLL=2
 
 def create_jwt(project_id, private_key_file, algorithm):
   """Create a JWT (https://jwt.io) to establish an MQTT connection."""
@@ -52,12 +70,26 @@ class Device(object):
   """Represents the state of a single device."""
 
   def __init__(self):
-    self.temperature = 0
-    self.fan_on = False
+    #self.leftright = 512
+    #self.updown = 512
+    self.servoStep = 150
     self.connected = False
 
   def update_sensor_data(self):
-    self.temperature = int(sensor.read_temperature())
+    #self.leftright = mcp.read_adc(0)
+    #self.updown = mcp.read_adc(1)
+    leftRightServoStep = mcp.read_adc(0)/stickToServoPositionRatio
+    leftRightServoStep = (leftRightServoStep/stickSensitivity)*stickSensitivity
+    leftRightServoStep = leftRightServoStep + servoMin
+    #print 'leftRightServoStep', leftRightServoStep
+    #poll until the stick moves
+    # while leftRightServoStep == self.servoStep:
+    #     leftRightServoStep = mcp.read_adc(0)/stickToServoPositionRatio
+    #     leftRightServoStep = (leftRightServoStep/stickSensitivity)*stickSensitivity
+    #     leftRightServoStep = leftRightServoStep + servoMin
+
+    #print 'leftRightServoStep', leftRightServoStep
+    self.servoStep = leftRightServoStep
 
   def wait_for_connection(self, timeout):
     """Wait for the device to become connected."""
@@ -100,22 +132,23 @@ class Device(object):
     # topic. If there is no configuration for the device, the device will
     # receive an config with an empty payload.
     if not payload:
+      print 'no payload'
       return
 
     # The config is passed in the payload of the message. In this example, the
     # server sends a serialized JSON string.
     data = json.loads(payload)
-    if data['fan_on'] != self.fan_on:
-      # If we're changing the state of the fan, print a message and update our
+    if data['servoStep']:
+      # If we're changing the servo position, print a message and update our
       # internal state.
-      self.fan_on = data['fan_on']
-      if self.fan_on:
-        GPIO.output(FAN_GPIO, GPIO.HIGH)
-        print 'Fan turned on.'
-      else:
-        GPIO.output(FAN_GPIO, GPIO.LOW)
-        print 'Fan turned off.'
 
+      self.servoStep = data['servoStep']
+      if self.servoStep:
+        print 'ServoStep', self.servoStep
+        # move the servo to new position and respond with new position
+        err = call(["gpio", "-g", "pwm", pwmGPIO, str(data['servoStep'])])
+        if err != 0:
+          print "Couldn't move servo, error:", err
 
 def parse_command_line_args():
   """Parse command line arguments."""
@@ -157,9 +190,14 @@ def parse_command_line_args():
 def main():
   args = parse_command_line_args()
 
-  # Setup GPIOs for the RasPi3 and cobbler
-  GPIO.setmode(GPIO.BCM) 
-  GPIO.setup(FAN_GPIO, GPIO.OUT)
+  #setup PWM for servo
+  err = call(["gpio", "-g", "mode", pwmGPIO, "pwm"])
+  err |= call(["gpio", "pwm-ms"])
+  err |= call(["gpio", "pwmc", pwmClock])
+  err |= call(["gpio", "pwmr", pwmRange])
+  if err != 0:
+    print "gpio setup error:", err
+    quit()
 
   # Create our MQTT client and connect to Cloud IoT.
   client = mqtt.Client(
@@ -174,7 +212,7 @@ def main():
   device = Device()
 
   client.on_connect = device.on_connect
-  client.on_publish = device.on_publish
+  # client.on_publish = device.on_publish
   client.on_disconnect = device.on_disconnect
   client.on_subscribe = device.on_subscribe
   client.on_message = device.on_message
@@ -183,8 +221,7 @@ def main():
 
   client.loop_start()
 
-  # This is the topic that the device will publish telemetry events (temperature
-  # data) to.
+  # This is the topic that the device will publish telemetry events to.
   mqtt_telemetry_topic = '/devices/{}/events'.format(args.device_id)
 
   # This is the topic that the device will receive configuration updates on.
@@ -196,20 +233,13 @@ def main():
   # Subscribe to the config topic.
   client.subscribe(mqtt_config_topic, qos=1)
 
-  # Update and publish temperature readings at a rate of one per second.
-  for _ in range(args.num_messages):
-    device.update_sensor_data()
-
-    # Report the device's temperature to the server, by serializing it as a JSON
-    # string.
-    payload = json.dumps({'temperature': device.temperature})
-    print 'Publishing payload', payload
-    client.publish(mqtt_telemetry_topic, payload, qos=1)
-    time.sleep(SENSOR_POLL)
+  # Update and publish stick position readings at a rate of one per SENSOR_POLL but poll the sensor for "stickSensitivity" changes.
+  while True:
+    pass
+    # time.sleep(SENSOR_POLL)
 
   client.disconnect()
   client.loop_stop()
-  GPIO.cleanup()
   print 'Finished loop successfully. Goodbye!'
 
 

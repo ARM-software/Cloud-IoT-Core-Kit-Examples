@@ -46,6 +46,7 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
     region=us-central1
     registry=example-registry
     device=my-rs256-device
+    device2=my-es256-device
     mysub=my-sub
     events=events
 
@@ -57,8 +58,7 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 	  --region=$region \
 	  --pubsub-topic=projects/$project/topics/$events
 
-5. Create a public/private key pair for your device and create a new device in your project and registry. Or, stretch goal, register one programmatically with [these code samples](https://cloud.google.com/iot/docs/device_manager_samples).
-
+5. Create a public/private key pair(s) for your device(s) and create a new device(s) in your project and registry. Or, stretch goal, register one programmatically with [these code samples](https://cloud.google.com/iot/docs/device_manager_samples).
 
 
     openssl req -x509 -newkey rsa:2048 -keyout rsa_private.pem -nodes -out rsa_cert.pem
@@ -68,6 +68,16 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
       --region=$region \
       --registry=$registry \
       --public-key path=rsa_cert.pem,type=rs256
+
+    openssl ecparam -genkey -name prime256v1 -noout -out ec_private.pem
+    openssl ec -in ec_private.pem -pubout -out ec_public.pem
+
+    gcloud beta iot devices create $device2 \
+      --project=$project \
+      --region=$region \
+      --registry=$registry \
+      --public-key path=ec_public.pem,type=es256
+
 
 6. Create a new pubsub subscription to an event
 

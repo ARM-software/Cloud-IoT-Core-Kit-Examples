@@ -45,7 +45,7 @@ pwmClock = "192"
 pwmRange = "2000"
 
 # Update and publish readings at a rate of SENSOR_POLL per second.
-SENSOR_POLL=2
+SENSOR_POLL=0
 
 def create_jwt(project_id, private_key_file, algorithm):
   """Create a JWT (https://jwt.io) to establish an MQTT connection."""
@@ -83,10 +83,10 @@ class Device(object):
     leftRightServoStep = leftRightServoStep + servoMin
     #print 'leftRightServoStep', leftRightServoStep
     #poll until the stick moves
-    # while leftRightServoStep == self.servoStep:
-    #     leftRightServoStep = mcp.read_adc(0)/stickToServoPositionRatio
-    #     leftRightServoStep = (leftRightServoStep/stickSensitivity)*stickSensitivity
-    #     leftRightServoStep = leftRightServoStep + servoMin
+    while leftRightServoStep == self.servoStep:
+        leftRightServoStep = mcp.read_adc(0)/stickToServoPositionRatio
+        leftRightServoStep = (leftRightServoStep/stickSensitivity)*stickSensitivity
+        leftRightServoStep = leftRightServoStep + servoMin
 
     #print 'leftRightServoStep', leftRightServoStep
     self.servoStep = leftRightServoStep
@@ -114,41 +114,6 @@ class Device(object):
   def on_publish(self, unused_client, unused_userdata, unused_mid):
     """Callback when the device receives a PUBACK from the MQTT bridge."""
     print 'Published message acked.'
-
-  def on_subscribe(self, unused_client, unused_userdata, unused_mid,
-                   granted_qos):
-    """Callback when the device receives a SUBACK from the MQTT bridge."""
-    print 'Subscribed: ', granted_qos
-    if granted_qos[0] == 128:
-      print 'Subscription failed.'
-
-  def on_message(self, unused_client, unused_userdata, message):
-    """Callback when the device receives a message on a subscription."""
-    payload = str(message.payload)
-    print "Received message '{}' on topic '{}' with Qos {}".format(
-        payload, message.topic, str(message.qos))
-
-    # The device will receive its latest config when it subscribes to the config
-    # topic. If there is no configuration for the device, the device will
-    # receive an config with an empty payload.
-    if not payload:
-      print 'no payload'
-      return
-
-    # The config is passed in the payload of the message. In this example, the
-    # server sends a serialized JSON string.
-    data = json.loads(payload)
-    if data['servoStep']:
-      # If we're changing the servo position, print a message and update our
-      # internal state.
-
-      self.servoStep = data['servoStep']
-      if self.servoStep:
-        print 'ServoStep', self.servoStep
-        # move the servo to new position and respond with new position
-        err = call(["gpio", "-g", "pwm", pwmGPIO, str(data['servoStep'])])
-        if err != 0:
-          print "Couldn't move servo, error:", err
 
 def parse_command_line_args():
   """Parse command line arguments."""
@@ -214,8 +179,6 @@ def main():
   client.on_connect = device.on_connect
   client.on_publish = device.on_publish
   client.on_disconnect = device.on_disconnect
-  client.on_subscribe = device.on_subscribe
-  client.on_message = device.on_message
 
   client.connect(args.mqtt_bridge_hostname, args.mqtt_bridge_port)
 

@@ -103,7 +103,8 @@ class Server(object):
         # device sent the event.
         device_project_id = message.attributes['projectId']
         device_registry_id = message.attributes['deviceRegistryId']
-        device_id = message.attributes['deviceId']
+        # device_id = message.attributes['deviceId']
+        device_id = "my-ec256-device"
         device_region = message.attributes['deviceRegistryLocation']
 
         # Send the config to the device.

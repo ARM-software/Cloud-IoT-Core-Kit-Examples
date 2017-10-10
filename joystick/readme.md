@@ -42,7 +42,7 @@ Make sure you're authenticated. If you haven't already associated a gcloud proje
 
     gcloud auth application-default login
 
-Change to the directory you've cloned this example to. i.e. "cd ~/Cloud-IoT-Core-Kit-Examples/joystick"
+Change to the directory you've cloned this example to. i.e. "cd ~/Cloud-IoT-Core-Kit-Examples/joystick" and make sure to copy your rsa_private and ec_private files in to this directory or point the scripts to wherever they are.
 
 Our pubsub server relays the servo position to one or many devices:
 
@@ -52,7 +52,7 @@ Our pubsub server relays the servo position to one or many devices:
      --pubsub_subscription=$mysub \
      --api_key=$apiKey 
 
-The client will read the joystick position and send it to the server:
+This client will read the joystick position and send it to the server:
 
     python pubsub_stick.py \
       --project_id=$project \
@@ -60,3 +60,12 @@ The client will read the joystick position and send it to the server:
       --device_id=$device \
       --private_key_file=rsa_private.pem \
       --algorithm=RS256
+
+This acknowledgement device will receive the servo position from the server:
+
+    python pubsub_servo.py \
+      --project_id=$project \
+      --registry_id=$registry \
+      --device_id=$device2 \
+      --private_key_file=ec_private.pem \
+      --algorithm=ES256
