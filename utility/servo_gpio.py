@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Connect the servo to 5v power and ground and the orange line to GPIO 18
-# This utility code will run the servo through its full range of motion
+# This utility code will run the servo through its full range of motion	
 
 from subprocess import call
 from time import sleep
