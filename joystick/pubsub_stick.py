@@ -40,9 +40,9 @@ stickSensitivity = 5   # the lower the number the more sensitive we are to stick
 stickToServoPositionRatio = 1024/servoSteps # assume 10bit ADC
 
 #Servo settings
-pwmGPIO = "18"
-pwmClock = "192"
-pwmRange = "2000"
+# pwmGPIO = "18"
+# pwmClock = "192"
+# pwmRange = "2000"
 
 # Update and publish readings at a rate of SENSOR_POLL per second.
 SENSOR_POLL=0
@@ -156,13 +156,13 @@ def main():
   args = parse_command_line_args()
 
   #setup PWM for servo
-  err = call(["gpio", "-g", "mode", pwmGPIO, "pwm"])
-  err |= call(["gpio", "pwm-ms"])
-  err |= call(["gpio", "pwmc", pwmClock])
-  err |= call(["gpio", "pwmr", pwmRange])
-  if err != 0:
-    print "gpio setup error:", err
-    quit()
+  # err = call(["gpio", "-g", "mode", pwmGPIO, "pwm"])
+  # err |= call(["gpio", "pwm-ms"])
+  # err |= call(["gpio", "pwmc", pwmClock])
+  # err |= call(["gpio", "pwmr", pwmRange])
+  # if err != 0:
+  #   print "gpio setup error:", err
+  #   quit()
 
   # Create our MQTT client and connect to Cloud IoT.
   client = mqtt.Client(

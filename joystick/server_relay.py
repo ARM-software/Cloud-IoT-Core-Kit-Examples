@@ -141,8 +141,10 @@ class Server(object):
         for device in devices:
           device_id = device.get('id')
 
-          # Send the config to the device.
-          self._update_device_config(device_project_id, device_region,
+          # don't send to the joystick device
+          if (message.attributes['deviceId'] != device_id):
+            # Send the config to the device.
+            self._update_device_config(device_project_id, device_region,
                                      device_registry_id, device_id, data)
 
       if results:

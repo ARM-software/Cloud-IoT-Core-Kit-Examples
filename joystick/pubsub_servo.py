@@ -190,7 +190,7 @@ def parse_command_line_args():
 def main():
   args = parse_command_line_args()
 
-  #setup PWM for servo
+  #setup PWM for servo 
   err = call(["gpio", "-g", "mode", pwmGPIO, "pwm"])
   err |= call(["gpio", "pwm-ms"])
   err |= call(["gpio", "pwmc", pwmClock])

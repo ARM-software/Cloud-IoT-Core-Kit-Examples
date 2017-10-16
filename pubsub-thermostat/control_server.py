@@ -60,7 +60,7 @@ class Server(object):
     elif data['temperature'] > fan_on_thresh:
       # Turn on the fan
       config_data = {'fan_on': True}
-      print 'Setting fan state for device', device_id, 'to on.'
+      print 'Temp:', data['temperature'],'C. Setting fan state for device', device_id, 'to on.'
     else:
       # Temperature is OK, don't need to push a new config.
       return
