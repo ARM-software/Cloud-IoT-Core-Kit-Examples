@@ -37,7 +37,7 @@ servoMin = 50
 servoMax = 250
 servoSteps = servoMax - servoMin
 stickSensitivity = 5   # the lower the number the more sensitive we are to stick changes that transmit a message
-stickToServoPositionRatio = 1024/servoSteps # assume 10bit ADC
+stickToServoPositionRatio = 1024/float(servoSteps) # assume 10bit ADC
 
 #Servo settings
 # pwmGPIO = "18"
@@ -46,6 +46,7 @@ stickToServoPositionRatio = 1024/servoSteps # assume 10bit ADC
 
 # Update and publish readings at a rate of SENSOR_POLL per second.
 SENSOR_POLL=0
+SENSOR_DEBOUNCE=0.1
 
 def create_jwt(project_id, private_key_file, algorithm):
   """Create a JWT (https://jwt.io) to establish an MQTT connection."""
@@ -74,18 +75,25 @@ class Device(object):
     #self.updown = 512
     self.servoStep = 150
     self.connected = False
+    # self.acked = True
 
   def update_sensor_data(self):
+    leftRightServoStep = self.servoStep
     #self.leftright = mcp.read_adc(0)
     #self.updown = mcp.read_adc(1)
-    leftRightServoStep = mcp.read_adc(0)/stickToServoPositionRatio
-    leftRightServoStep = (leftRightServoStep/stickSensitivity)*stickSensitivity
-    leftRightServoStep = leftRightServoStep + servoMin
+    # while self.acked == False:
+    # pass
+    # print "."
+    #self.acked = False
+
     #print 'leftRightServoStep', leftRightServoStep
     #poll until the stick moves
     while leftRightServoStep == self.servoStep:
-        leftRightServoStep = mcp.read_adc(0)/stickToServoPositionRatio
-        leftRightServoStep = (leftRightServoStep/stickSensitivity)*stickSensitivity
+      leftRightServoStepPreDeb = mcp.read_adc(0)/stickToServoPositionRatio
+      time.sleep(SENSOR_DEBOUNCE)
+      leftRightServoStepPostDeb = mcp.read_adc(0)/stickToServoPositionRatio
+      if leftRightServoStepPreDeb == leftRightServoStepPostDeb:
+        leftRightServoStep = int(leftRightServoStepPreDeb/stickSensitivity)*stickSensitivity
         leftRightServoStep = leftRightServoStep + servoMin
 
     #print 'leftRightServoStep', leftRightServoStep
@@ -113,6 +121,7 @@ class Device(object):
 
   def on_publish(self, unused_client, unused_userdata, unused_mid):
     """Callback when the device receives a PUBACK from the MQTT bridge."""
+    # self.acked = True
     print 'Published message acked.'
 
 def parse_command_line_args():
@@ -155,6 +164,7 @@ def parse_command_line_args():
 def main():
   args = parse_command_line_args()
 
+  # print "stickToServoPositionRatio", stickToServoPositionRatio
   #setup PWM for servo
   # err = call(["gpio", "-g", "mode", pwmGPIO, "pwm"])
   # err |= call(["gpio", "pwm-ms"])
