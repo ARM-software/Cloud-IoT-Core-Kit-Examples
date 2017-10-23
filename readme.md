@@ -99,6 +99,7 @@ Our initial examples for this kit will focus on Python but it is entirely possib
     apt install build-essential libssl-dev libffi-dev python-dev
     pip install pyjwt paho-mqtt cryptography
     pip install --upgrade google-api-python-client
+    pip install --upgrade google-cloud-core
     pip install --upgrade google-cloud-pubsub
     exit
 
