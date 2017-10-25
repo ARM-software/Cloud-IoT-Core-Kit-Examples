@@ -15,7 +15,12 @@ Install the Adafruit Python MCP3008 driver from GitHub as requested in the afore
 
 [Connect the joystick to the breadboard](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples/blob/master/joystick/joystick_wiring.png?raw=true), the L/R+ to the 3.3v power rail, GND to the ground rail and L/R to CH0 on the MCP3008 ADC. You can also connect U/D to CH1 if you like but we'll only be using left and right in this example. In your Adafruit_Python_MCP3008/examples directory, you can now run:
 
+    cd examples
+    
+edit GPIO 18 to 12 with your favorite editor
+    
     python simpletest.py
+   
 
 Changes in the L/R stick position should show up as values between 0 to 1024.
 
