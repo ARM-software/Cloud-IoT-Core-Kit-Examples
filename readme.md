@@ -12,16 +12,16 @@ If you purchased the kit that includes the Raspberry Pi 3 Model B, this comes wi
    *Get root access for updates*
 
 
-    sudo -s 
+    `sudo -s` 
 
    *This step can take a while due to the number of packages installed by default on the Pi, feel free to uninstall the wolfram-engine, browsers, office applications, etc. at your discretion before running the updates*
 
-    apt update && apt upgrade && apt dist-upgrade
+    `apt update && apt upgrade && apt dist-upgrade`
 
     
    *Update the pi firmware (most likely requires a reboot after completion)*
 
-    rpi-update && reboot
+    `rpi-update && reboot`
 
  *note: you can change most boot, bus and, interface options with a curses interface as well using **sudo raspi-config** i.e. enabling the i2c interface* 
 
@@ -42,52 +42,69 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 3. Create shell variables with your specific project name from step 1 as well as region, registry, device, subscription and event names. Fill in your project ID from step 1, the rest can remain as is below and used in your .profile or .bashrc. i.e.
 
 
-    project=my-project-name-1234
-    region=us-central1
-    registry=example-registry
-    device=my-rs256-device
-    device2=my-es256-device
-    mysub=my-sub
-    events=events
+    `project=my-project-name-1234`
+    
+    `region=us-central1`
+    
+    `registry=example-registry`
+    
+    `device=my-rs256-device`
+    
+    `device2=my-es256-device`
+    
+    `mysub=my-sub`
+    
+    `events=events`
 
 4. Create a new registry using the gcloud command. 
 
 
-    gcloud beta iot registries create $registry \
-	  --project=$project \
-	  --region=$region \
-	  --pubsub-topic=projects/$project/topics/$events
+    `gcloud beta iot registries create $registry \`
+    
+	  `--project=$project \`
+	  
+	  `--region=$region \`
+	  
+	  `--pubsub-topic=projects/$project/topics/$events`
 
 5. Create a public/private key pair(s) for your device(s) and create a new device(s) in your project and registry. Or, stretch goal, register one programmatically with [these code samples](https://cloud.google.com/iot/docs/device_manager_samples).
 
 
-    openssl req -x509 -newkey rsa:2048 -keyout rsa_private.pem -nodes -out rsa_cert.pem
+    `openssl req -x509 -newkey rsa:2048 -keyout rsa_private.pem -nodes -out rsa_cert.pem`
 
-    gcloud beta iot devices create $device \
-      --project=$project \
-      --region=$region \
-      --registry=$registry \
-      --public-key path=rsa_cert.pem,type=rs256
+    `gcloud beta iot devices create $device \`
+    
+      `--project=$project \`
+      
+      `--region=$region \`
+      
+      `--registry=$registry \`
+      
+      `--public-key path=rsa_cert.pem,type=rs256`
 
-    openssl ecparam -genkey -name prime256v1 -noout -out ec_private.pem
-    openssl ec -in ec_private.pem -pubout -out ec_public.pem
+    `openssl ecparam -genkey -name prime256v1 -noout -out ec_private.pem`
+    `openssl ec -in ec_private.pem -pubout -out ec_public.pem`
 
-    gcloud beta iot devices create $device2 \
-      --project=$project \
-      --region=$region \
-      --registry=$registry \
-      --public-key path=ec_public.pem,type=es256
+    `gcloud beta iot devices create $device2 \`
+      
+      `--project=$project \`
+      
+      `--region=$region \`
+      
+      `--registry=$registry \`
+      
+      `--public-key path=ec_public.pem,type=es256`
 
 
 6. Create a new pubsub subscription to an event
 
 
-    gcloud beta pubsub subscriptions create projects/$project/subscriptions/$mysub --topic=$events
+    `gcloud beta pubsub subscriptions create projects/$project/subscriptions/$mysub --topic=$events`
 
 7. Download the CA root certificates from pki.google.com into the same directory as the example script you want to use:
 
 
-    wget https://pki.google.com/roots.pem
+    `wget https://pki.google.com/roots.pem`
 
 
 ---
