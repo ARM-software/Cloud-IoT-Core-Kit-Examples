@@ -42,7 +42,9 @@ You'll need the Python pub/sub library and APIs and an API key if you haven't al
     sudo pip install --upgrade google-cloud-pubsub
     sudo pip install google-api-python-client google-auth-httplib2 google-auth google-cloud
 
-[Create an API key and service account named api-tester](https://cloud.google.com/iot/docs/samples/end-to-end-sample#create_your_credentials) and make a service_account.json file (steps 1 and 2 in the link) and put it in this example's directory (scp or rsync over ssh are easy ways to move files to your ssh connected Pi if you've downloaded the json file on a host machine).
+[Create an API key and service account named api-tester](https://cloud.google.com/iot/docs/samples/end-to-end-sample#create_your_credentials) and make a service_account.json file (steps 1 and 2 in the link) and put it in this example's directory (scp or rsync over ssh are easy ways to move files to your ssh connected Pi if you've downloaded the json file on a host machine). Set the an environment variable to point to this json file:
+
+    export GOOGLE_APPLICATION_CREDENTIALS=service_account.json
 
 Make sure you're authenticated. If you haven't already associated a gcloud project_id with this project, you'll be asked to do so. Use the project you created in the top level readme of this code base.
 
