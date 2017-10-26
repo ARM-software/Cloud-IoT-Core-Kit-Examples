@@ -26,6 +26,7 @@ Changes in the L/R stick position should show up as values between 0 to 1024.
 
 [Connect the servo](https://github.com/ARM-software/Cloud-IoT-Core-Kit-Examples/blob/master/joystick/joystick_wiring.png?raw=true) by wiring the brown wire to the ground rail, the red wire to the 5v rail or horizontal row and the orange wire to GPIO 18. Adafruit has an [explaination of the pulse width modulation](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-8-using-a-servo-motor/software) (PWM) settings we'll use to below to test your wiring. Raspbian has a gpio command included so testing from your shell is easy. Configure with:
     
+    gpio -g mode 18 pwm
     gpio pwm-ms
     gpio pwmc 192
     gpio pwmr 2000
