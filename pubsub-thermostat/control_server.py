@@ -16,6 +16,7 @@ import argparse
 import base64
 import json
 import sys
+import time
 
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
@@ -113,6 +114,8 @@ class Server(object):
         # Send the config to the device.
         self._update_device_config(device_project_id, device_region,
                                    device_registry_id, device_id, data, fan_on_thresh, fan_off_thresh)
+        # state change updates throttled to 1 sec by pubsub. Obey or crash. 
+        time.sleep(1)
 
       if results:
         # Acknowledge the consumed messages. This will ensure that they are not
