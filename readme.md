@@ -36,75 +36,64 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 2. Install **[the latest Google Cloud Tools](https://cloud.google.com/sdk/docs/#deb)** with the included directions, please be careful to use us-central1-a during the beta when running gcloud-init. Also, in Linux some of the beta additions require "sudo gcloud" to be used so you'll need to authorize your root account with sudo in addition to your 'pi' account so instructions from here will diverge from those included [here](https://cloud.google.com/iot/docs/device_manager_guide#install_the_gcloud_cli). Simply follow the directions below instead if you are installing gcloud on the Pi rather than another host machine. SSHing into your Pi (headless) is **strongly** advised in order facilitate authentication of your accounts with your normal desktop browser using copy/paste.
 
 
-
-    sudo gcloud components repositories add https://storage.googleapis.com/cloud-iot-gcloud/components-2.json
+`sudo gcloud components repositories add https://storage.googleapis.com/cloud-iot-gcloud/components-2.json`
 
 3. Create shell variables with your specific project name from step 1 as well as region, registry, device, subscription and event names. Fill in your project ID from step 1, the rest can remain as is below and used in your .profile or .bashrc. i.e.
 
-
-    project=my-project-name-1234
-    
-    region=us-central1
-    
-    registry=example-registry
-    
-    device=my-rs256-device
-    
-    device2=my-es256-device
-    
-    mysub=my-sub
-    
-    events=events
+```bash
+project=my-project-name-1234
+region=us-central1
+registry=example-registry
+device=my-rs256-device
+device2=my-es256-device
+mysub=my-sub
+events=events
+```    
 
 4. Create a new registry using the gcloud command. 
 
+```bash
+gcloud beta iot registries create $registry \
+	--project=$project \
+	--region=$region \
+	--event-pubsub-topic=projects/$project/topics/$events
+```
 
-    `gcloud beta iot registries create $registry \`
-    
-	  `--project=$project \`
-	  
-	  `--region=$region \`
-	  
-	  `--event-pubsub-topic=projects/$project/topics/$events`
 
 5. Create a public/private key pair(s) for your device(s) and create a new device(s) in your project and registry. Or, stretch goal, register one programmatically with [these code samples](https://cloud.google.com/iot/docs/device_manager_samples).
 
-
-    `openssl req -x509 -newkey rsa:2048 -keyout rsa_private.pem -nodes -out rsa_cert.pem`
-
-    `gcloud beta iot devices create $device \`
-    
-      `--project=$project \`
-      
-      `--region=$region \`
-      
-      `--registry=$registry \`
-      
-      `--public-key path=rsa_cert.pem,type=rs256`
-
-    `openssl ecparam -genkey -name prime256v1 -noout -out ec_private.pem`
-    `openssl ec -in ec_private.pem -pubout -out ec_public.pem`
-
-    `gcloud beta iot devices create $device2 \`
-      
-      `--project=$project \`
-      
-      `--region=$region \`
-      
-      `--registry=$registry \`
-      
-      `--public-key path=ec_public.pem,type=es256`
+```bash
+openssl req -x509 -newkey rsa:2048 -keyout rsa_private.pem -nodes -out rsa_cert.pem
+```
+```bash
+gcloud beta iot devices create $device \
+	--project=$project \
+	--region=$region \
+	--registry=$registry \
+	--public-key path=rsa_cert.pem,type=rs256
+```
+```bash
+openssl ecparam -genkey -name prime256v1 -noout -out ec_private.pem
+openssl ec -in ec_private.pem -pubout -out ec_public.pem
+```
+```bash
+gcloud beta iot devices create $device2 \
+	--project=$project \
+	--region=$region \
+	--registry=$registry \
+	--public-key path=ec_public.pem,type=es256
+```
 
 
 6. Create a new pubsub subscription to an event
 
 
-    `gcloud beta pubsub subscriptions create projects/$project/subscriptions/$mysub --topic=$events`
+`gcloud beta pubsub subscriptions create projects/$project/subscriptions/$mysub --topic=$events`
 
 7. Download the CA root certificates from pki.google.com into the same directory as the example script you want to use:
 
 
-    `wget https://pki.google.com/roots.pem`
+`wget https://pki.google.com/roots.pem`
 
 
 ---
@@ -112,14 +101,15 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 ## Dependencies
 Our initial examples for this kit will focus on Python but it is entirely possible to use Ruby, Java, C and other languages to work with Google Cloud IoT. Dependencies include a JSON Web Token and MQTT library as well as a SSL/TLS library like OpenSSL. You'll need the following to run any of the examples included in this repository.
 
-    sudo -s
-    apt install build-essential libssl-dev libffi-dev python-dev
-    pip install pyjwt paho-mqtt cryptography
-    pip install --upgrade google-api-python-client
-    pip install --upgrade google-cloud-core
-    pip install --upgrade google-cloud-pubsub
-    exit
-
+```bash
+sudo -s
+apt install build-essential libssl-dev libffi-dev python-dev
+pip install pyjwt paho-mqtt cryptography
+pip install --upgrade google-api-python-client
+pip install --upgrade google-cloud-core
+pip install --upgrade google-cloud-pubsub
+exit
+```
 ---
 
 ## Hello World - Temperature example
