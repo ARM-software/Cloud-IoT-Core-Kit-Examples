@@ -43,11 +43,17 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 
 
     project=my-project-name-1234
+    
     region=us-central1
+    
     registry=example-registry
+    
     device=my-rs256-device
+    
     device2=my-es256-device
+    
     mysub=my-sub
+    
     events=events
 
 4. Create a new registry using the gcloud command. 
