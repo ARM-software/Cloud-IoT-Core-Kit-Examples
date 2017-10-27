@@ -42,19 +42,13 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 3. Create shell variables with your specific project name from step 1 as well as region, registry, device, subscription and event names. Fill in your project ID from step 1, the rest can remain as is below and used in your .profile or .bashrc. i.e.
 
 
-    `project=my-project-name-1234`
-    
-    `region=us-central1`
-    
-    `registry=example-registry`
-    
-    `device=my-rs256-device`
-    
-    `device2=my-es256-device`
-    
-    `mysub=my-sub`
-    
-    `events=events`
+    project=my-project-name-1234
+    region=us-central1
+    registry=example-registry
+    device=my-rs256-device
+    device2=my-es256-device
+    mysub=my-sub
+    events=events
 
 4. Create a new registry using the gcloud command. 
 
@@ -65,7 +59,7 @@ The Google Cloud SDK can be installed on another host machine or the Pi itself. 
 	  
 	  `--region=$region \`
 	  
-	  `--pubsub-topic=projects/$project/topics/$events`
+	  `--event-pubsub-topic=projects/$project/topics/$events`
 
 5. Create a public/private key pair(s) for your device(s) and create a new device(s) in your project and registry. Or, stretch goal, register one programmatically with [these code samples](https://cloud.google.com/iot/docs/device_manager_samples).
 
