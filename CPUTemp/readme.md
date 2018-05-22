@@ -9,6 +9,6 @@ This example is the our "Hello World" for our Raspberry Pi 3 setup. This should 
 
 gcloud command to fetch CPU temperature:
 
-    gcloud beta pubsub subscriptions pull --auto-ack projects/$project/subscriptions/$mysub
+    gcloud pubsub subscriptions pull --auto-ack projects/$project/subscriptions/$mysub
 
 ---
