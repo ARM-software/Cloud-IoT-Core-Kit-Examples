@@ -17,9 +17,19 @@ import datetime
 import time
 from time import gmtime, strftime
 import subprocess
+import random
 
 import jwt
 import paho.mqtt.client as mqtt
+
+# The initial backoff time after a disconnection occurs, in seconds.
+minimum_backoff_time = 1
+
+# The maximum backoff time before giving up, in seconds.
+MAXIMUM_BACKOFF_TIME = 32
+
+# Whether to wait with exponential backoff before publishing.
+should_backoff = False
 
 def create_jwt(project_id, private_key_file, algorithm):
     """Creates a JWT (https://jwt.io) to establish an MQTT connection.
@@ -65,11 +75,20 @@ def error_str(rc):
 def on_connect(unused_client, unused_userdata, unused_flags, rc):
     """Callback for when a device connects."""
     print('on_connect', error_str(rc))
+    # After a successful connect, reset backoff time and stop backing off.
+    global should_backoff
+    global minimum_backoff_time
+    should_backoff = False
+    minimum_backoff_time = 1
 
 
 def on_disconnect(unused_client, unused_userdata, rc):
     """Paho callback for when a device disconnects."""
     print('on_disconnect', error_str(rc))
+    # Since a disconnect occurred, the next loop iteration will wait with
+    # exponential backoff.
+    global should_backoff
+    should_backoff = True
 
 
 def on_publish(unused_client, unused_userdata, unused_mid):
@@ -120,6 +139,7 @@ def parse_command_line_args():
 
 
 def main():
+    global minimum_backoff_time
     args = parse_command_line_args()
 
     # Create our MQTT client. The client_id is a unique string that identifies
@@ -153,6 +173,19 @@ def main():
 
     # Start the network loop.
     client.loop_start()
+
+    # Wait if backoff is required.
+    if should_backoff:
+        # If backoff time is too large, give up.
+        if minimum_backoff_time > MAXIMUM_BACKOFF_TIME:
+            print('Exceeded maximum backoff time. Giving up.')
+        else:
+            # Otherwise, wait and connect again.
+            delay = minimum_backoff_time + random.randint(0, 1000) / 1000.0
+            print('Waiting for {} before reconnecting.'.format(delay))
+            time.sleep(delay)
+            minimum_backoff_time *= 2
+            client.connect(args.mqtt_bridge_hostname, args.mqtt_bridge_port)
 
     mqtt_topic = '/devices/{}/events'.format(args.device_id)
 
