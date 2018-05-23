@@ -27,13 +27,13 @@ If you purchased the kit that includes the Raspberry Pi 3 Model B, this comes wi
 
 ---
 ## Enabling Cloud IoT Core AP, installing the Google Cloud SDK and registering your first device
-Before you proceed please ensure you have registered with the Google IoT Core Beta and that you are logged into Google via your browser with the same userid and password on your development machine that you registered with.
+Before you proceed please ensure you are logged into Google via your browser with the same userid and password you used with gcloud init on your development machine.
 
 The Google Cloud SDK can be installed on another host machine or the Pi itself. These steps will get the gcloud command installed on the Pi but it can just as easily be done on any machine that you do your development on.
 
 1. Create a Cloud Platform project and enable the Cloud IoT Core API using these **"[Before you begin](https://cloud.google.com/iot/docs/how-tos/getting-started)"** directions.
 
-2. Install **[the latest Google Cloud Tools](https://cloud.google.com/sdk/docs/#deb)** with the included directions, please be careful to use us-central1-a during the beta when running gcloud-init. Also, in Linux some of the beta additions require "sudo gcloud" to be used so you'll need to authorize your root account with sudo in addition to your 'pi' account so instructions from here will diverge from those included [here](https://cloud.google.com/iot/docs/device_manager_guide#install_the_gcloud_cli). Simply follow the directions below instead if you are installing gcloud on the Pi rather than another host machine. SSHing into your Pi (headless) is **strongly** advised in order facilitate authentication of your accounts with your normal desktop browser using copy/paste.
+2. Install **[the latest Google Cloud Tools](https://cloud.google.com/sdk/docs/#deb)** with the included directions. In Linux some of the additions require "sudo gcloud" to be used so you'll need to authorize your root account with sudo in addition to your 'pi' account so instructions from here will diverge from those included [here](https://cloud.google.com/iot/docs/device_manager_guide#install_the_gcloud_cli). Simply follow the directions below instead if you are installing gcloud on the Pi rather than another host machine. SSHing into your Pi (headless) is **strongly** advised in order facilitate authentication of your accounts with your normal desktop browser using copy/paste.
 
 
 `sudo gcloud components repositories add https://storage.googleapis.com/cloud-iot-gcloud/components-2.json`
@@ -53,7 +53,7 @@ events=events
 4. Create a new registry using the gcloud command. 
 
 ```bash
-gcloud beta iot registries create $registry \
+gcloud iot registries create $registry \
 	--project=$project \
 	--region=$region \
 	--event-pubsub-topic=projects/$project/topics/$events
@@ -66,7 +66,7 @@ gcloud beta iot registries create $registry \
 openssl req -x509 -newkey rsa:2048 -keyout rsa_private.pem -nodes -out rsa_cert.pem
 ```
 ```bash
-gcloud beta iot devices create $device \
+gcloud iot devices create $device \
 	--project=$project \
 	--region=$region \
 	--registry=$registry \
@@ -77,7 +77,7 @@ openssl ecparam -genkey -name prime256v1 -noout -out ec_private.pem
 openssl ec -in ec_private.pem -pubout -out ec_public.pem
 ```
 ```bash
-gcloud beta iot devices create $device2 \
+gcloud iot devices create $device2 \
 	--project=$project \
 	--region=$region \
 	--registry=$registry \
@@ -88,7 +88,7 @@ gcloud beta iot devices create $device2 \
 6. Create a new pubsub subscription to an event
 
 
-`gcloud beta pubsub subscriptions create projects/$project/subscriptions/$mysub --topic=$events`
+`gcloud pubsub subscriptions create projects/$project/subscriptions/$mysub --topic=$events`
 
 7. Download the CA root certificates from pki.google.com into the same directory as the example script you want to use:
 
@@ -103,7 +103,7 @@ Our initial examples for this kit will focus on Python but it is entirely possib
 
 ```bash
 sudo -s
-apt install build-essential libssl-dev libffi-dev python-dev
+apt install build-essential libssl-dev libffi-dev python-dev python-pip
 pip install pyjwt paho-mqtt cryptography
 pip install --upgrade google-api-python-client
 pip install --upgrade google-cloud-core
