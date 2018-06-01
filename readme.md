@@ -108,6 +108,7 @@ pip install pyjwt paho-mqtt cryptography
 pip install --upgrade google-api-python-client
 pip install --upgrade google-cloud-core
 pip install --upgrade google-cloud-pubsub
+pip install --upgrade google-auth-httplib2 google-auth oauth2client
 exit
 ```
 ---
