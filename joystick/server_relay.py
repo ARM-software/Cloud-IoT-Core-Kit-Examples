@@ -16,6 +16,7 @@ import argparse
 import base64
 import json
 import sys
+import time
 
 from googleapiclient import discovery
 from oauth2client.service_account import ServiceAccountCredentials
@@ -24,7 +25,7 @@ from google.cloud import pubsub
 from google.oauth2 import service_account
 
 API_SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
-API_VERSION = 'v1beta1'
+API_VERSION = 'v1'
 DISCOVERY_API = 'https://cloudiot.googleapis.com/$discovery/rest'
 SERVICE_NAME = 'cloudiot'
 
@@ -114,43 +115,41 @@ class Server(object):
     return request.execute()
 
   def run(self, project_id, pubsub_topic, pubsub_subscription, service_account_json):
-    """The main loop for the device. Consume messages from the Pub/Sub topic."""
-    pubsub_client = pubsub.Client()
-    topic_name = 'projects/{}/topics/{}'.format(project_id, pubsub_topic)
-    topic = pubsub_client.topic(topic_name)
-    subscription = topic.subscription(pubsub_subscription)
-    print 'Server running. Consuming telemetry events from', topic_name
+      """The main loop for the device. Consume messages from the Pub/Sub topic."""
+      pubsub_client = pubsub.SubscriberClient()
+      topic_name = 'projects/{}/topics/{}'.format(project_id, pubsub_topic)
+      subscription_path = pubsub_client.subscription_path(project_id, pubsub_subscription)
+      print 'Server running. Consuming telemetry events from', topic_name
 
-    while True:
-      print 'waiting'
-      # Pull from the subscription, waiting until there are messages.
-      results = subscription.pull(return_immediately=False)
-      print 'received', results
-      for ack_id, message in results:
-        # print '.'
-        data = json.loads(message.data)
-        # Get the registry id and device id from the attributes. These are
-        # automatically supplied by IoT, and allow the server to determine which
-        # device sent the event.
-        device_project_id = message.attributes['projectId']
-        device_registry_id = message.attributes['deviceRegistryId']
-        # device_id = message.attributes['deviceId']
-        device_region = message.attributes['deviceRegistryLocation']
+      def callback(message):
+          print 'waiting'
+        # Pull from the subscription, waiting until there are messages.
+          # print '.'
+          data = json.loads(message.data)
+          # Get the registry id and device id from the attributes. These are
+          # automatically supplied by IoT, and allow the server to determine which
+          # device sent the event.
+          device_project_id = message.attributes['projectId']
+          device_registry_id = message.attributes['deviceRegistryId']
+          # device_id = message.attributes['deviceId']
+          device_region = message.attributes['deviceRegistryLocation']
 
-        devices = list_devices(service_account_json, device_project_id, device_region, device_registry_id)
-        for device in devices:
-          device_id = device.get('id')
+          devices = list_devices(service_account_json, device_project_id, device_region, device_registry_id)
+          for device in devices:
+            device_id = device.get('id')
 
-          # don't send to the joystick device
-          if (message.attributes['deviceId'] != device_id):
-            # Send the config to the device.
-            self._update_device_config(device_project_id, device_region,
-                                     device_registry_id, device_id, data)
-
-      if results:
-        # Acknowledge the consumed messages. This will ensure that they are not
-        # redelivered to this subscription.
-        subscription.acknowledge([ack_id for ack_id, message in results])
+            # don't send to the joystick device
+            if (message.attributes['deviceId'] != device_id):
+              # Send the config to the device.
+              self._update_device_config(device_project_id, device_region, device_registry_id, device_id, data)
+          time.sleep(1)
+          messesage.ack()
+          
+      pubsub_client.subscribe(subscription_path, callback=callback)
+      
+      while(True):
+          time.sleep(60)
+          subscription.acknowledge([ack_id for ack_id, message in results])
 
 
 def parse_command_line_args():

@@ -62,11 +62,12 @@ Our control server can run on any host machine, including the RasPi. The "--fan_
 
     python control_server.py \
      --project_id=$project \
-     --pubsub_topic=$events \
+     --pubsub_topic=$mytopic \
      --pubsub_subscription=$mysub \
      --api_key=$apiKey \
      --fan_off=22 \
-     --fan_on=23
+     --fan_on=23 \
+     --service_account_json=/path_to_the_file/service_account.json
 
 The client will run on one or many RasPi Cloud IoT kits with unique device ids:
 
@@ -74,5 +75,6 @@ The client will run on one or many RasPi Cloud IoT kits with unique device ids:
       --project_id=$project \
       --registry_id=$registry \
       --device_id=$device \
-      --private_key_file=rsa_private.pem \
-      --algorithm=RS256
+      --private_key_file=/path_to_the_file/rsa_private.pem \
+      --algorithm=RS256 \
+      --ca_certs=/path_to_the_file/roots.pem

@@ -56,9 +56,10 @@ Our pubsub server relays the servo position to one or many devices:
 
     python server_relay.py \
      --project_id=$project \
-     --pubsub_topic=$events \
+     --pubsub_topic=$mytopic \
      --pubsub_subscription=$mysub \
-     --api_key=$apiKey 
+     --api_key=$apiKey \
+     --service_account_json=/path_to_the_file/service_account.json
 
 This client will read the joystick position and send it to the server:
 
@@ -66,8 +67,9 @@ This client will read the joystick position and send it to the server:
       --project_id=$project \
       --registry_id=$registry \
       --device_id=$device \
-      --private_key_file=rsa_private.pem \
-      --algorithm=RS256
+      --private_key_file=/path_to_the_file/rsa_private.pem \
+      --algorithm=RS256 \
+      --ca_certs=/path_to_the_file/roots.pem
 
 This acknowledgement device will receive the servo position from the server:
 
@@ -75,5 +77,5 @@ This acknowledgement device will receive the servo position from the server:
       --project_id=$project \
       --registry_id=$registry \
       --device_id=$device2 \
-      --private_key_file=ec_private.pem \
+      --private_key_file=/path_to_the_file/ec_private.pem \
       --algorithm=ES256

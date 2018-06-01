@@ -24,7 +24,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import pubsub
 
 API_SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
-API_VERSION = 'v1beta1'
+API_VERSION = 'v1'
 DISCOVERY_API = 'https://cloudiot.googleapis.com/$discovery/rest'
 SERVICE_NAME = 'cloudiot'
 
@@ -90,38 +90,34 @@ class Server(object):
     return request.execute()
 
   def run(self, project_id, pubsub_topic, pubsub_subscription, fan_on_thresh, fan_off_thresh):
-    """The main loop for the device. Consume messages from the Pub/Sub topic."""
-    pubsub_client = pubsub.Client()
-    topic_name = 'projects/{}/topics/{}'.format(project_id, pubsub_topic)
-    topic = pubsub_client.topic(topic_name)
-    subscription = topic.subscription(pubsub_subscription)
-    print 'Server running. Consuming telemetry events from', topic_name
+      """The main loop for the device. Consume messages from the Pub/Sub topic."""
+      pubsub_client = pubsub.SubscriberClient()
+      topic_name = 'projects/{}/topics/{}'.format(project_id, pubsub_topic)
+      #topic = pubsub_client.topic(topic_name)
+      subscription_path = pubsub_client.subscription_path(project_id, pubsub_subscription)
+      print 'Server running. Consuming telemetry events from', topic_name
 
-    while True:
-      # Pull from the subscription, waiting until there are messages.
-      results = subscription.pull(return_immediately=False)
-      for ack_id, message in results:
-        # print '.'
-        data = json.loads(message.data)
-        # Get the registry id and device id from the attributes. These are
-        # automatically supplied by IoT, and allow the server to determine which
-        # device sent the event.
-        device_project_id = message.attributes['projectId']
-        device_registry_id = message.attributes['deviceRegistryId']
-        device_id = message.attributes['deviceId']
-        device_region = message.attributes['deviceRegistryLocation']
+      def callback(message):
+        # Pull from the subscription, waiting until there are messages..'
+          data = json.loads(message.data)
+          # Get the registry id and device id from the attributes. These are
+          # automatically supplied by IoT, and allow the server to determine which
+          # device sent the event.
+          device_project_id = message.attributes['projectId']
+          device_registry_id = message.attributes['deviceRegistryId']
+          device_id = message.attributes['deviceId']
+          device_region = message.attributes['deviceRegistryLocation']
 
-        # Send the config to the device.
-        self._update_device_config(device_project_id, device_region,
-                                   device_registry_id, device_id, data, fan_on_thresh, fan_off_thresh)
-        # state change updates throttled to 1 sec by pubsub. Obey or crash. 
-        time.sleep(1)
-
-      if results:
-        # Acknowledge the consumed messages. This will ensure that they are not
-        # redelivered to this subscription.
-        subscription.acknowledge([ack_id for ack_id, message in results])
-
+          # Send the config to the device.
+          self._update_device_config(device_project_id, device_region, device_registry_id, device_id, data, fan_on_thresh, fan_off_thresh)
+          # state change updates throttled to 1 sec by pubsub. Obey or crash. 
+          time.sleep(1)
+          messesage.ack()
+          
+      pubsub_client.subscribe(subscription_path, callback=callback)
+      
+      while(True):
+          time.sleep(60)
 
 def parse_command_line_args():
   """Parse command line arguments."""
