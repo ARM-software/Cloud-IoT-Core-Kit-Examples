@@ -48,6 +48,7 @@ device=my-rs256-device
 device2=my-es256-device
 mysub=my-sub
 events=events
+mytopic=events
 ```    
 
 4. Create a new registry using the gcloud command. 
