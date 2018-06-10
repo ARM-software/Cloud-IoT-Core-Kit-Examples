@@ -16,6 +16,7 @@ import argparse
 import datetime
 import json
 import time
+import ssl
 
 import jwt
 import paho.mqtt.client as mqtt
@@ -92,7 +93,7 @@ class Device(object):
 
   def on_message(self, unused_client, unused_userdata, message):
     """Callback when the device receives a message on a subscription."""
-    payload = str(message.payload)
+    payload = message.payload
     print "Received message '{}' on topic '{}' with Qos {}".format(
         payload, message.topic, str(message.qos))
 
@@ -169,7 +170,7 @@ def main():
       username='unused',
       password=create_jwt(args.project_id, args.private_key_file,
                           args.algorithm))
-  client.tls_set(ca_certs=args.ca_certs)
+  client.tls_set(ca_certs=args.ca_certs, tls_version=ssl.PROTOCOL_TLSv1_2)
 
   device = Device()
 

@@ -18,6 +18,7 @@ import time
 from time import gmtime, strftime
 import subprocess
 import random
+import ssl
 
 import jwt
 import paho.mqtt.client as mqtt
@@ -159,7 +160,7 @@ def main():
                     args.project_id, args.private_key_file, args.algorithm))
 
     # Enable SSL/TLS support.
-    client.tls_set(ca_certs=args.ca_certs)
+    client.tls_set(ca_certs=args.ca_certs, tls_version=ssl.PROTOCOL_TLSv1_2)
 
     # Register message callbacks. https://eclipse.org/paho/clients/python/docs/
     # describes additional callbacks that Paho supports. In this example, the
@@ -195,14 +196,14 @@ def main():
     # Get Mac's proc temp if "sudo gem install iStats" is installed 
     elif subprocess.call(["which", "istats"]) == 0:
         #temp = subprocess.check_output(["istats"]).decode().split(":")[-1].split("\n")[0]
-        temp = "".join(subprocess.check_output(["istats"]).decode().split()).split(":")[-1].split("F")[0]
+        #temp = "".join(subprocess.check_output(["istats"]).decode().split()).split(":")[-1].split("F")[0]
+        temp = 40
     else:
         temp = 40
 
     payload = '{}/{} Time {} temperature {}'.format(
             args.registry_id, args.device_id, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temp)
-    print(
-            'Publishing message {}'.format(payload))
+    print('Publishing message {}'.format(payload))
     # Publish "payload" to the MQTT topic. qos=1 means at least once
     # delivery. Cloud IoT Core also supports qos=0 for at most once
     # delivery.

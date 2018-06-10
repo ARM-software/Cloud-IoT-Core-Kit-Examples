@@ -57,7 +57,7 @@ mytopic=events
 gcloud iot registries create $registry \
 	--project=$project \
 	--region=$region \
-	--event-pubsub-topic=projects/$project/topics/$events
+    --event-notification-config=topic=projects/$project/topics/$events
 ```
 
 
