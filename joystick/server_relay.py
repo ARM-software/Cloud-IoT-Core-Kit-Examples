@@ -148,7 +148,7 @@ class Server(object):
       
       while(True):
           time.sleep(60)
-          subscription.acknowledge([ack_id for ack_id, message in results])
+          #subscription.acknowledge([ack_id for ack_id, message in results])
 
 
 def parse_command_line_args():
